@@ -27,15 +27,12 @@ class MainSpider(CrawlSpider):
             'url'                  : response.url,
             'price'                : response.css('.price-val::text').get(),
             'currency'             : response.css('.price-cur::text').get(),
-            'location'             : response.css('.product-map__left bz-d-flex bz-align-center::text').get(),
-            'address'              : response.css('.product-extras__i::text').get(),
-            'address_all'          : response.css('.product-extras__i::text').getall(),
-            'type'                 : response.css('table.properties td.property-value:nth-child(2)::text').get(),
+            'location'             : response.css('div.product-map__left.bz-d-flex.bz-align-center div::text').get(),
+            'address'              : response.css('li.product-extras__i > a::text').get(),
+            'address_all'          : response.css('li.product-extras__i > a::text').getall(),
             'description'          : response.css('.product-description__content p::text').getall(),
-
-            # 'building_type'        : response.css('table.properties td.property-value:nth-child(3)::text').get(),
-            # 'area'                 : response.css('table.properties td.property-value:nth-child(4)::text').get(),
+            'building_type'        : response.css("span.product-properties__i-value::text").get(),
+            'all_data'             : response.css("span.product-properties__i-value::text").getall(),
             # 'room_count'           : response.css('table.properties td.property-value:nth-child(4)::text').get(),
             # 'loc_details'          : response.css('table.properties td.property-value:nth-child(4)::text').get(),
-
         }
