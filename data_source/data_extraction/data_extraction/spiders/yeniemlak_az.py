@@ -3,7 +3,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 class MainSpider(CrawlSpider):
-    name            = 'bina_az'
+    name            = 'yeniemlak_az'
     allowed_domains = ['bina.az']
     start_urls      = ['https://bina.az/items/']
 
