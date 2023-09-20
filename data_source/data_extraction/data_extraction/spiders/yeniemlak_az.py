@@ -4,8 +4,8 @@ from scrapy.spiders import CrawlSpider, Rule
 
 class MainSpider(CrawlSpider):
     name            = 'yeniemlak_az'
-    allowed_domains = ['bina.az']
-    start_urls      = ['https://bina.az/items/']
+    allowed_domains = ['yeniemlak.az']
+    start_urls      = ['https://yeniemlak.az/items/']
 
     rules = (
                Rule(LinkExtractor( allow    =  ('/items/')),
