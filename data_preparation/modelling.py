@@ -1,99 +1,46 @@
 import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import joblib
-import category_encoders as ce
+
+features = pd.read_excel('features.xlsx')
+target = pd.read_excel('target.xlsx')
+
+y = target.values.ravel()
+
+X_train, X_test, y_train, y_test = train_test_split(features, y, test_size=0.2, random_state=42)
+
+rf_model = RandomForestRegressor(
+    n_estimators=88,
+    random_state=47,
+    max_depth=16,
+    min_samples_split=2,
+    min_samples_leaf=2,
+    min_weight_fraction_leaf=0.1,
+    max_features=0.8,
+    max_leaf_nodes=None,
+    min_impurity_decrease=0.8,
+    bootstrap=True,
+    oob_score=True,
+    n_jobs=8,
+    verbose=0,
+    warm_start=True,
+    ccp_alpha=0.0,
+    max_samples=None
+)
+
+rf_model.fit(X_train, y_train)
+
+y_pred = rf_model.predict(X_test)
+
+print(pd.DataFrame({
+    'r2_score': np.ravel([r2_score(y_test, y_pred)]),
+    'mean_squared_error': np.sqrt(mean_squared_error(y_test, y_pred)),
+    'mean_absolute_error': mean_absolute_error(y_test, y_pred)
+}))
 
 
-def load_and_combine_data(file_paths):
-    data_frames = [pd.read_csv(file) for file in file_paths]
-    combined_data = pd.concat(data_frames, ignore_index=True)
-    return combined_data
-    
-def clean_data(data):
-    cleaned_data = data.dropna().reset_index(drop=True)
-    return cleaned_data
-
-def filter_by_keywords(data, keywords):
-    mask = data['description'].str.contains('|'.join(keywords), case=False, na=False)
-    filtered_data = data[mask].reset_index(drop=True)
-    return filtered_data
-
-def preprocess_data(data):
-    data['view_count'] = data['view'].str.extract(r'(?i)(?:Baxışların sayı|Просмотров): (\d+)')
-    data.drop('view', axis=1, inplace=True)
-
-    seller_type_mapping = {
-        'vasitəçi (agent)': 0,
-        'посредник (агент)': 0,
-        'собственник': 1,
-        'mülkiyyətçi': 1
-    }
-    data['seller_type_encoded'] = data['seller_type'].replace(seller_type_mapping)
-    data.drop('seller_type', axis=1, inplace=True)
-
-    data['price'] = data['price'].str.replace(' ', '').astype(float)
-    building_type_mapping = {
-        'Köhnə tikili': 'Old building',
-        'Yeni tikili': 'New building',
-        'Ofis': 'Office',
-        'Офис': 'Office',
-        'Объект': 'Object',
-        'Дом / Дача': 'House / Cottage',
-        'Вторичка': 'Secondary',
-        'Həyət evi / Bağ evi': 'House / Garden house',
-        'Новостройка': 'New building',
-        'Obyekt': 'Object',
-        'Mənzil': 'Apartment',
-        'Участок': 'Plot',
-        'Torpaq': 'Land',
-        'Qaraj': 'Garage',
-        'Гараж': 'Garage'
-    }
-    data['building_type_unified'] = data['building_type'].replace(building_type_mapping)
-    data['is_near_metro'] = (data['location'].str.contains('m\.', case=False) |
-                             data['address_all'].str.contains('m\.', case=False) |
-                             data['description'].str.contains('m\.', case=False) |
-                             data['location'].str.contains('metro', case=False) |
-                             data['address_all'].str.contains('metro', case=False) |
-                             data['description'].str.contains('metro', case=False)).astype(int)
-
-    features = ['view_count', 'seller_type_encoded', 'building_type_unified', 'is_near_metro']
-    target = ['price']
-    encoder = ce.BinaryEncoder(cols=['building_type_unified'])
-    data_encoded = encoder.fit_transform(data)
-    # data_encoded.to_excel('main_data.xlsx',index=False)
-    #data_encoded.drop(['building_type', 'building_type_unified_0'], axis=1, inplace=True)
-
-    for col in data_encoded.columns:
-        if data_encoded[col].dtype == bool:
-            data_encoded[col] = data_encoded[col].astype(int)
-
-    return data_encoded[features], data_encoded[target]
-
-def train_and_evaluate_model(features, target):
-    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    return model, mse, r2
-
-def main():
-    file_paths = ['bina_az_19092023.csv', 'bina_az_21092023.csv']
-    combined_data = load_and_combine_data(file_paths)
-    cleaned_data = clean_data(combined_data)
-    keywords = ['icare', 'kiraye', 'ицаре', 'кирае', 'Сдается']
-    filtered_data = filter_by_keywords(cleaned_data, keywords)
-    preprocessed_features, target = preprocess_data(filtered_data)
-    model, mse, r2 = train_and_evaluate_model(preprocessed_features, target)
-    model = model
-    model_file = 'model.pkl'
-    joblib.dump(model, model_file)
-    print(f"Mean Squared Error: {mse:.2f}")
-    print(f"R-squared (R2) Score: {r2:.2f}")
-
-if __name__ == "__main__":
-    main()
+model_filename = 'random_forest_regressor.pkl'
+joblib.dump(rf_model, model_filename)
