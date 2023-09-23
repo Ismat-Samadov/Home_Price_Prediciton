@@ -3,13 +3,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
+import category_encoders as ce
 
 
 def load_and_combine_data(file_paths):
     data_frames = [pd.read_csv(file) for file in file_paths]
     combined_data = pd.concat(data_frames, ignore_index=True)
     return combined_data
-
+    
 def clean_data(data):
     cleaned_data = data.dropna().reset_index(drop=True)
     return cleaned_data
@@ -33,10 +34,6 @@ def preprocess_data(data):
     data.drop('seller_type', axis=1, inplace=True)
 
     data['price'] = data['price'].str.replace(' ', '').astype(float)
-
-    data = data.sort_values(by='price', ascending=True)
-    data['description_length'] = data['description'].apply(len)
-
     building_type_mapping = {
         'Köhnə tikili': 'Old building',
         'Yeni tikili': 'New building',
@@ -55,10 +52,6 @@ def preprocess_data(data):
         'Гараж': 'Garage'
     }
     data['building_type_unified'] = data['building_type'].replace(building_type_mapping)
-
-    data[['property_type', 'floor_info', 'area', 'room_count', 'data_1', 'data_2', 'data_3']] = data[
-        'all_data'].str.split(',', expand=True)
-
     data['is_near_metro'] = (data['location'].str.contains('m\.', case=False) |
                              data['address_all'].str.contains('m\.', case=False) |
                              data['description'].str.contains('m\.', case=False) |
@@ -68,18 +61,16 @@ def preprocess_data(data):
 
     features = ['view_count', 'seller_type_encoded', 'building_type_unified', 'is_near_metro']
     target = ['price']
+    encoder = ce.BinaryEncoder(cols=['building_type_unified'])
+    data_encoded = encoder.fit_transform(data)
+    # data_encoded.to_excel('main_data.xlsx',index=False)
+    #data_encoded.drop(['building_type', 'building_type_unified_0'], axis=1, inplace=True)
 
-    features = data[features].reset_index(drop=True)
-    dummy_building_type = pd.get_dummies(data['building_type_unified'], prefix='building_type')
-    features = pd.concat([features, dummy_building_type], axis=1)
+    for col in data_encoded.columns:
+        if data_encoded[col].dtype == bool:
+            data_encoded[col] = data_encoded[col].astype(int)
 
-    for col in features.columns:
-        if features[col].dtype == bool:
-            features[col] = features[col].astype(int)
-
-    features.drop('building_type_unified', axis=1, inplace=True)
-
-    return features, data[target]
+    return data_encoded[features], data_encoded[target]
 
 def train_and_evaluate_model(features, target):
     X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
@@ -106,4 +97,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
