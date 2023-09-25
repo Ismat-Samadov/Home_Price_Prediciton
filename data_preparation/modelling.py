@@ -41,6 +41,5 @@ print(pd.DataFrame({
     'mean_absolute_error': mean_absolute_error(y_test, y_pred)
 }))
 
-
 model_filename = 'random_forest_regressor.pkl'
 joblib.dump(rf_model, model_filename)

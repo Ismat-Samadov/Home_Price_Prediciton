@@ -1,14 +1,10 @@
 import pandas as pd
 
+
 def load_and_concat_data(file1, file2):
     data_1 = pd.read_csv(file1)
     data_2 = pd.read_csv(file2)
     return pd.concat([data_1, data_2], ignore_index=True).drop_duplicates(keep='last').dropna().reset_index(drop=True)
-
-
-def extract_view_count(df):
-    df['view_count'] = df['view'].str.extract(r'(?i)(?:Baxışların sayı|Просмотров): (\d+)')
-    return df
 
 
 def encode_seller_type(df):
@@ -30,16 +26,15 @@ def clean_and_sort_data(df):
 
 def map_building_type(df):
     building_type_mapping = {
-
-        'Köhnə tikili': 'Old building',
-        'Yeni tikili': 'New building',
+        'Köhnə tikili': 'Old_building',
+        'Yeni tikili': 'New_building',
         'Ofis': 'Office',
         'Офис': 'Office',
         'Объект': 'Object',
-        'Дом / Дача': 'House / Cottage',
+        'Дом / Дача': 'Cottage',
         'Вторичка': 'Secondary',
-        'Həyət evi / Bağ evi': 'House / Garden house',
-        'Новостройка': 'New building',
+        'Həyət evi / Bağ evi': 'Garden_house',
+        'Новостройка': 'New_building',
         'Obyekt': 'Object',
         'Mənzil': 'Apartment',
         'Участок': 'Plot',
@@ -62,7 +57,6 @@ def check_near_metro(df):
 
 
 def process_data(df):
-    df = extract_view_count(df)
     df = encode_seller_type(df)
     df = clean_and_sort_data(df)
     df = map_building_type(df)
@@ -77,7 +71,7 @@ if __name__ == '__main__':
     frames = load_and_concat_data(file1, file2)
     frames = process_data(frames)
 
-    features = ['view_count', 'seller_type_encoded', 'building_type_unified', 'is_near_metro']
+    features = ['seller_type_encoded', 'building_type_unified', 'is_near_metro']
     target = ['price']
 
     features = frames[features].reset_index(drop=True)
