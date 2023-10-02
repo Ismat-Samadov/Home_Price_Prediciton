@@ -56,6 +56,12 @@ ROBOTSTXT_OBEY = False
 #    "data_extraction.middlewares.DataExtractionDownloaderMiddleware": 543,
 # }
 
+DOWNLOADER_MIDDLEWARES = {
+    "data_extraction.middlewares.DataExtractionDownloaderMiddleware": 543,
+    "scrapy_cloudflare_middleware.middlewares.CloudFlareMiddleware": 560,
+}
+
+
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 # EXTENSIONS = {

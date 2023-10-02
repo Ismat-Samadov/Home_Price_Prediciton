@@ -2,7 +2,7 @@ import scrapy
 class BinaAzPaginationSpider(scrapy.Spider):
     name = "main"
     allowed_domains = ["bina.az"]
-    start_urls = ["https://bina.az/alqi-satqi?page=1"]
+    start_urls = ["https://bina.az/baki/alqi-satqi/menziller/kohne-tikili?page=1"]
 
     def parse(self, response):
         links = response.css('.item_link::attr(href)').getall()
