@@ -32,5 +32,21 @@ def predict_price(item: Item):
         item.documents_encoded,
         item.is_repair_encoded
     ]])
-    prediction = model.predict(features)[0]  # Ensure it's a standard Python float
-    return {"predicted_price": float(prediction)}  # Convert the prediction to float
+    prediction = model.predict(features)[0]  
+    return {"predicted_price": float(prediction)} 
+
+
+# uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+
+
+# curl -X POST "http://localhost:8000/predict/" -H "Content-Type: application/json" -d '{
+#     "is_near_metro": 1,
+#     "seller_type_encoded": 2,
+#     "flat": 3,
+#     "total_flat": 4,
+#     "room_count": 2,
+#     "area_converted": 80.0,
+#     "category_encoded": 1,
+#     "documents_encoded": 0,
+#     "is_repair_encoded": 1
+# }'
