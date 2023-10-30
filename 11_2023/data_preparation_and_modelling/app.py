@@ -44,11 +44,7 @@ data = {
     "documents_encoded": no_yes_mapping[documents_encoded],
     "is_repair_encoded": no_yes_mapping[is_repair_encoded],
 }
-
-# Create a button to make predictions
-if st.button('Predict Price'):
-    # Prepare the input data for prediction
-    input_data = [list(data.values())]  # Pass the values as a list inside a list
-    # Make a prediction
+if st.sidebar.button('Predict Price'):
+    input_data = [list(data.values())]
     prediction = model.predict(input_data)
     st.success(f'Predicted Price: {prediction[0]:.2f}')
