@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 
 # Load the XGBoost model
-model = joblib.load('/app/xgb.pkl')
+model = joblib.load('/home_price_prediciton/blob/main/11_2023/data_preparation_and_modelling/xgb.pkl')
 
 home_image_url = "https://images.pexels.com/photos/463734/pexels-photo-463734.jpeg?auto=compress&cs=tinysrgb&w=600"
 
