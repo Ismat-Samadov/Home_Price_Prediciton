@@ -1,6 +1,12 @@
 import streamlit as st
 import joblib
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+import locale  
+locale.setlocale(locale.LC_ALL, '')
+
 model = joblib.load('02_11_2023/data_preparation_and_modelling/random_forest.pkl')
+fitted_scaler = joblib.load('02_11_2023/data_preparation_and_modelling/fitted_scaler.pkl')
 home_image_url = "https://images.pexels.com/photos/463734/pexels-photo-463734.jpeg?auto=compress&cs=tinysrgb&w=600"
 image_html = f'<img src="{home_image_url}" style="max-width: 100%; height: auto;">'
 st.markdown(image_html, unsafe_allow_html=True)
@@ -24,6 +30,7 @@ area_converted = st.sidebar.slider("Area of home in square meter:", 1, 100, 1)
 category_encoded = st.sidebar.selectbox("Category of building:", ("Old Building", "New Building"))
 documents_encoded = st.sidebar.selectbox("Has documents?", ("No", "Yes"))
 is_repair_encoded = st.sidebar.selectbox("Is repaired?", ("No", "Yes"))
+
 data = {
     "is_near_metro": no_yes_mapping[is_near_metro],
     "seller_type_encoded": no_yes_mapping[seller_type_encoded],
@@ -35,7 +42,15 @@ data = {
     "documents_encoded": no_yes_mapping[documents_encoded],
     "is_repair_encoded": no_yes_mapping[is_repair_encoded],
 }
+
 if st.sidebar.button('Predict Price'):
-    input_data = [list(data.values())]
-    prediction = model.predict(input_data)
-    st.success(f'Predicted Price: {prediction[0]:.2f}')
+    # Scale the input features using the fitted scaler
+    scaled_data = fitted_scaler.transform([list(data.values())])
+
+    # Make predictions
+    prediction = model.predict(scaled_data)
+
+    # Format the predicted price with thousands separators
+    formatted_prediction = locale.format("%d", prediction[0], grouping=True)
+
+    st.success(f'Predicted Price: {formatted_prediction}')
