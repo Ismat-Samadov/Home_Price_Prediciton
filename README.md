@@ -41,7 +41,7 @@ The repository is organized as follows:
 ## Predictive Model Deployment to Heroku (Heroku Git)
 1. Sign up for a free Heroku account if you haven't already done so.
 
-2. Create an app, e.g., "myapp" (replace with your desired app name).
+2. Create an app, e.g., app.py.
 
 3. Open a terminal and type `heroku login`. This will take you to a web-based login page.
 
