@@ -9,10 +9,9 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 
-with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.pkl.gz', 'rb') as f_in:
-    with open('random_forest.joblib', 'wb') as f_out:
-        f_out.writelines(f_in)
-model = load('random_forest.joblib')
+with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.pkl.gz', 'rb') as f:
+    model = load(f)
+
 
 fitted_scaler = joblib.load('02_11_2023/data_preparation_and_modelling/fitted_scaler.pkl')
 home_image_url = "https://images.pexels.com/photos/463734/pexels-photo-463734.jpeg?auto=compress&cs=tinysrgb&w=600"
