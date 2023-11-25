@@ -44,13 +44,7 @@ data = {
 }
 
 if st.sidebar.button('Predict Price'):
-    # Scale the input features using the fitted scaler
     scaled_data = fitted_scaler.transform([list(data.values())])
-
-    # Make predictions
     prediction = model.predict(scaled_data)
-
-    # Format the predicted price with thousands separators
     formatted_prediction = locale.format("%d", prediction[0], grouping=True)
-
     st.success(f'Predicted Price: {formatted_prediction}')
