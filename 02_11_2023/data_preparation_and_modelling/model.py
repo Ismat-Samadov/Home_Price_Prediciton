@@ -1,12 +1,13 @@
 import re
 import pandas as pd
 import warnings
-import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+import joblib
+from joblib import dump, load
 import gzip
 import pickle
 
@@ -71,12 +72,13 @@ print(f"R-squared: {r2:.2f}")
 print(f"Root Mean Squared Error: {rmse:.2f}")
 print(f"Mean Absolute Error: {mae:.2f}")
 print("-----------------------")
-joblib.dump(scaler, 'fitted_scaler.pkl')
+# joblib.dump(scaler, 'fitted_scaler.pkl')
+with open('fitted_scaler.pkl', 'wb') as f:
+    pickle.dump(scaler, f)
 
-from joblib import dump, load
+
 dump(model, 'random_forest.joblib')
 loaded_model = load('random_forest.joblib')
-import gzip
 with open('random_forest.joblib', 'rb') as f_in:
     with gzip.open('random_forest.joblib.gz', 'wb') as f_out:
         f_out.writelines(f_in)
