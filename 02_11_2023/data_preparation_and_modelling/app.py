@@ -1,17 +1,17 @@
 import streamlit as st
 import joblib
+import gzip
+from joblib import load
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import locale  
 locale.setlocale(locale.LC_ALL, '')
 
-import gzip
-from joblib import load
 
-with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.joblib.gz', 'rb') as f_in:
+
+with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.pkl.gz', 'rb') as f_in:
     with open('random_forest.joblib', 'wb') as f_out:
         f_out.writelines(f_in)
-
 model = load('random_forest.joblib')
 
 fitted_scaler = joblib.load('02_11_2023/data_preparation_and_modelling/fitted_scaler.pkl')
