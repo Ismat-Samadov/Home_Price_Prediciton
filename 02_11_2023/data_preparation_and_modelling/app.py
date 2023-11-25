@@ -10,7 +10,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 try:
-    with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.pkl.gz', 'rb') as f:
+    with gzip.open('02_11_2023/data_preparation_and_modelling/random_forest.joblib.gz', 'rb') as f:
         model = load(f)
 except Exception as e:
     st.error(f"Error loading the model: {e}")
