@@ -15,8 +15,8 @@ try:
 except Exception as e:
     st.error(f"Error loading the model: {e}")
 
-
 fitted_scaler = joblib.load('02_11_2023/data_preparation_and_modelling/fitted_scaler.pkl')
+
 home_image_url = "https://images.pexels.com/photos/463734/pexels-photo-463734.jpeg?auto=compress&cs=tinysrgb&w=600"
 image_html = f'<img src="{home_image_url}" style="max-width: 100%; height: auto;">'
 st.markdown(image_html, unsafe_allow_html=True)
