@@ -1,15 +1,22 @@
-# main.py
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import gzip
 from joblib import load
 import joblib
 import numpy as np
-import os
-import streamlit as st
+import logging
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Item(BaseModel):
     is_near_metro: int
@@ -22,29 +29,30 @@ class Item(BaseModel):
     documents_encoded: int
     is_repair_encoded: int
 
-# Explicitly define the model file path
-model_file_path = os.path.join(os.path.dirname(__file__), 'random_forest.joblib.gz')
+class PredictionResponse(BaseModel):
+    predicted_price: float
+
+model_file_path = "random_forest.joblib.gz"  
+
+logging.basicConfig(level=logging.INFO)
 
 @app.on_event("startup")
 async def load_model():
     try:
         with gzip.open(model_file_path, 'rb') as f:
             app.state.model = load(f)
-            st.info("Model loaded successfully.")
+            logging.info("Model loaded successfully.")
     except FileNotFoundError as e:
-        st.error(f"Model file not found: {e}")
+        logging.error(f"Model file not found: {e}")
         raise HTTPException(status_code=500, detail="Model file not found.")
     except Exception as e:
-        st.error(f"Error loading the model: {e}")
+        logging.error(f"Error loading the model: {e}")
         raise HTTPException(status_code=500, detail=f"Error loading the model: {e}")
 
 fitted_scaler = joblib.load('fitted_scaler.pkl')
 
-@app.post("/predict/")
+@app.post("/predict/", response_model=PredictionResponse)
 def predict_price(item: Item):
-    if app.state.model is None:
-        raise HTTPException(status_code=500, detail="Model not loaded. Check the startup logs.")
-    
     try:
         features = np.array([[
             item.is_near_metro,
@@ -59,6 +67,7 @@ def predict_price(item: Item):
         ]])
         features_scaled = fitted_scaler.transform(features)
         prediction = app.state.model.predict(features_scaled)[0]
-        return JSONResponse(content={"predicted_price": float(prediction)})
+        return PredictionResponse(predicted_price=float(prediction))
     except Exception as e:
+        logging.error(f"Prediction error: {e}")
         raise HTTPException(status_code=500, detail=f"Prediction error: {e}")
