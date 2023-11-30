@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+# main.py
+from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import gzip
@@ -8,16 +10,6 @@ import numpy as np
 import streamlit as st
 
 app = FastAPI()
-
-@app.on_event("startup")
-async def load_model():
-    try:
-        with gzip.open('random_forest.joblib.gz', 'rb') as f:
-            app.model = load(f)
-    except Exception as e:
-        st.error(f"Error loading the model: {e}")
-
-fitted_scaler = joblib.load('fitted_scaler.pkl')
 
 class Item(BaseModel):
     is_near_metro: int
@@ -30,8 +22,22 @@ class Item(BaseModel):
     documents_encoded: int
     is_repair_encoded: int
 
+@app.on_event("startup")
+async def load_model():
+    try:
+        with gzip.open('random_forest.joblib.gz', 'rb') as f:
+            app.state.model = load(f)
+    except Exception as e:
+        st.error(f"Error loading the model: {e}")
+
+app.state.model = None  # Initialize to None during startup
+fitted_scaler = joblib.load('fitted_scaler.pkl')
+
 @app.post("/predict/")
 def predict_price(item: Item):
+    if app.state.model is None:
+        raise HTTPException(status_code=500, detail="Model not loaded. Check the startup logs.")
+    
     try:
         features = np.array([[
             item.is_near_metro,
@@ -45,7 +51,7 @@ def predict_price(item: Item):
             item.is_repair_encoded
         ]])
         features_scaled = fitted_scaler.transform(features)
-        prediction = app.model.predict(features_scaled)[0]
+        prediction = app.state.model.predict(features_scaled)[0]
         return JSONResponse(content={"predicted_price": float(prediction)})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {e}")
