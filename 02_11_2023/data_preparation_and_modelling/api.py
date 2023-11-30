@@ -1,13 +1,11 @@
-# main.py
-from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import gzip
 from joblib import load
 import joblib
 import numpy as np
-import streamlit as st
+import os
 
 app = FastAPI()
 
@@ -22,17 +20,22 @@ class Item(BaseModel):
     documents_encoded: int
     is_repair_encoded: int
 
+# Explicitly define the model file path
+model_file_path = os.path.join(os.path.dirname(__file__), 'random_forest.joblib.gz')
+
 @app.on_event("startup")
 async def load_model():
     try:
-        with gzip.open('random_forest.joblib.gz', 'rb') as f:
+        with gzip.open(model_file_path, 'rb') as f:
             app.state.model = load(f)
+            print("Model loaded successfully.")
     except FileNotFoundError as e:
-        st.error(f"Model file not found: {e}")
+        print(f"Model file not found: {e}")
+        raise HTTPException(status_code=500, detail="Model file not found.")
     except Exception as e:
-        st.error(f"Error loading the model: {e}")
+        print(f"Error loading the model: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading the model: {e}")
 
-app.state.model = None  # Initialize to None during startup
 fitted_scaler = joblib.load('fitted_scaler.pkl')
 
 @app.post("/predict/")
