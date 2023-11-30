@@ -6,6 +6,7 @@ from joblib import load
 import joblib
 import numpy as np
 import os
+import streamlit as st
 
 app = FastAPI()
 
@@ -28,12 +29,12 @@ async def load_model():
     try:
         with gzip.open(model_file_path, 'rb') as f:
             app.state.model = load(f)
-            print("Model loaded successfully.")
+            st.info("Model loaded successfully.")
     except FileNotFoundError as e:
-        print(f"Model file not found: {e}")
+        st.error(f"Model file not found: {e}")
         raise HTTPException(status_code=500, detail="Model file not found.")
     except Exception as e:
-        print(f"Error loading the model: {e}")
+        st.error(f"Error loading the model: {e}")
         raise HTTPException(status_code=500, detail=f"Error loading the model: {e}")
 
 fitted_scaler = joblib.load('fitted_scaler.pkl')
