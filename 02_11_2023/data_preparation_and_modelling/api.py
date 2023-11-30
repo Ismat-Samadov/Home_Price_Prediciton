@@ -27,6 +27,8 @@ async def load_model():
     try:
         with gzip.open('random_forest.joblib.gz', 'rb') as f:
             app.state.model = load(f)
+    except FileNotFoundError as e:
+        st.error(f"Model file not found: {e}")
     except Exception as e:
         st.error(f"Error loading the model: {e}")
 
