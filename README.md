@@ -1,4 +1,6 @@
 # Real Estate Web Scraping and Home Price Prediction
+[Detailed Article](https://medium.com/python-in-plain-english/home-price-prediction-e2e-web-app-581a8643b1d0)
+
 
 This repository is dedicated to a project that involves web scraping real estate listings from popular websites and using machine learning to predict home prices. It's designed to help you gather data from real estate websites and then build a predictive model for estimating home prices based on various features.
 
