@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import joblib
 import numpy as np
 import locale
-
+import os
 # Set locale to format currency output
 locale.setlocale(locale.LC_ALL, '')
 
@@ -59,5 +59,6 @@ def predict():
     # Render the page with the prediction result
     return render_template('index.html', prediction=formatted_prediction, predefined=data, user_inputs=user_inputs)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
