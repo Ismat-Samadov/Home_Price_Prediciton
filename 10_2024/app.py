@@ -1,10 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import joblib
 import numpy as np
-import locale
 import os
-# Set locale to format currency output
-locale.setlocale(locale.LC_ALL, '')
 
 app = Flask(__name__)
 
@@ -53,11 +50,12 @@ def predict():
     # Make prediction
     prediction = model.predict(input_array)
 
-    # Format the predicted price as a currency
-    formatted_prediction = locale.currency(prediction[0], grouping=True)
+    # Format the predicted price (rounded to 2 decimal places)
+    formatted_prediction = f"${prediction[0]:,.2f}"
 
     # Render the page with the prediction result
     return render_template('index.html', prediction=formatted_prediction, predefined=data, user_inputs=user_inputs)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
